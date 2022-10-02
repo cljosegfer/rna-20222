@@ -1,96 +1,61 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sun Oct  2 16:34:05 2022
+Created on Sun Oct  2 16:12:42 2022
 
 @author: jose
 """
 
-from scipy import io
 import numpy as np
-from tqdm import tqdm
-import matplotlib.pyplot as plt
-from regressao import regressao
+from sklearn.metrics import roc_auc_score, accuracy_score, mean_squared_error
 
-datasets = ('australian', 
-            'banknote', 
-            'breastcancer', 
-            'breastHess', 
-            'bupa', 
-            'climate', 
-            'diabetes', 
-            'fertility', 
-            'german', 
-            'golub', 
-            'haberman', 
-            'heart', 
-            'ILPD', 
-            'parkinsons', 
-            'sonar')
-dir_path = 'data'
-K = 10
+class regressao():
 
-dataset = 'sonar'
-fold_n = 1
+	def __init__(self, p = 10, l = 0.1):
+		self.p = p
+		self.l = l
+		self.loss = None
 
-# data
-filename = 'data/exportBase_{}_folds_10_exec_{}.mat'.format(dataset, fold_n + 1)
-data_mat = io.loadmat(filename)
+	def __concatenate(self, X):
+		return np.hstack((np.ones(shape = (X.shape[0], 1)), X))
 
-X_train = np.copy(data_mat['data']['train'][0][0])
-y_train = np.copy(data_mat['data']['classTrain'][0][0].ravel())
-y_train[y_train == -1] = 0
+	def __sigmoid(self, x):
+		return 1 / (1 + np.exp(-x))
 
-X_test = np.copy(data_mat['data']['test'][0][0])
-y_test = np.copy(data_mat['data']['classTest'][0][0].ravel())
-y_test[y_test == -1] = 0
+	def projecao(self, X):
+		return self.__sigmoid(X @ self.Z)
 
-# p
-log = []
-ps = np.linspace(1, 150, 1000, dtype = np.int)
-loss = 1e6
-for p in tqdm(ps):
-    temp = regressao(p = p, l = 0)
-    temp.fit(X_train, y_train)
-    log.append(temp.loss)
-    
-    if temp.loss < loss:
-        loss = temp.loss
-        model = temp
-p = model.p
+	def fit(self, X, y, loo = True):
+		X = self.__concatenate(X)
+		n = X.shape[1]
+		self.Z = np.random.normal(size = (n, self.p))
+		H = self.projecao(X)
 
-# plot
-plt.figure()
-plt.plot(ps, log)
-plt.xlabel('p')
-plt.ylabel('press')
-plt.title(dataset)
+		H = self.__concatenate(H)
+		mathbbH = np.linalg.pinv(H.T @ H + self.l * np.identity(self.p + 1)) @ H.T
+		self.W = mathbbH @ y
 
-# lambda
-log = []
-ls = np.logspace(-5, 5, 1000)
-loss = 1e6
-for l in tqdm(ls):
-    temp = regressao(p = p, l = l)
-    temp.fit(X_train, y_train)
-    log.append(temp.loss)
-    
-    if temp.loss < loss:
-        loss = temp.loss
-        model = temp
-l = model.l
+		if loo:
+			h = np.diag(H @ mathbbH)
+			yhat = self.__sigmoid(H @ self.W)
+			r = y - yhat
+			press = np.sum((r / (1 - h))**2)
 
-# plot
-plt.figure()
-plt.plot(np.log(ls), log)
-plt.xlabel('log lambda')
-plt.ylabel('press')
-plt.title(dataset)
+			self.loss = press
 
-# test
-auc = model.auc(X_test, y_test)
-acc = model.acc(X_test, y_test)
-mse = model.mse(X_test, y_test)
+	def predict(self, X, discrimina = False):
+		H = self.projecao(self.__concatenate(X))
+		yhat = self.__sigmoid(self.__concatenate(H) @ self.W)
+		if discrimina:
+			yhat = np.sign(yhat)
+			yhat[yhat == -1] = 0
+		return yhat
 
-print('p: {} | lambda: {} | press: {}'.format(p, l, model.loss))
-print('auc: {} | acc: {} | mse: {}'.format(auc, acc, mse))
+	def acc(self, X, y):
+		return accuracy_score(y, self.predict(X, discrimina = True))
+
+	def auc(self, X, y):
+		return roc_auc_score(y, self.predict(X, discrimina = True))
+
+	def mse(self, X, y):
+		return mean_squared_error(y, self.predict(X))
