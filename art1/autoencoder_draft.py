@@ -55,7 +55,8 @@ log = []
 ps = np.linspace(1, 100, 100, dtype = np.int)
 for p in tqdm(ps):
     temp = MLPRegressor(hidden_layer_sizes = p, 
-                        activation = 'logistic')
+                        activation = 'logistic', 
+                        solver = 'adam')
     temp.fit(X_train, X_train)
     
     Z = temp.coefs_[0]
@@ -74,7 +75,8 @@ for p in tqdm(ps):
 
 p = ps[np.argmin(log)]
 model = MLPRegressor(hidden_layer_sizes = p, 
-                    activation = 'logistic')
+                    activation = 'logistic', 
+                    solver = 'adam')
 model.fit(X_train, X_train)
 Z = model.coefs_[0]
 b = model.intercepts_[0]

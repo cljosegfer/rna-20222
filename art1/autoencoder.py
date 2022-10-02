@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sun Oct  2 16:12:42 2022
+Created on Sun Oct  2 19:56:12 2022
 
 @author: jose
 """
 
 import numpy as np
+from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import roc_auc_score, accuracy_score, mean_squared_error
 
-class elm():
+class autoencoder():
 
-	def __init__(self, p = 10, l = 0.1):
+	def __init__(self, p = 10, l = 0.1, activation = 'logistic', solver = 'lbfgs', max_iter = 200):
 		self.p = p
+		self.model = MLPRegressor(hidden_layer_sizes = self.p, activation = activation, solver = solver, max_iter = max_iter)
 		self.l = l
 		self.loss = None
 
@@ -23,12 +25,10 @@ class elm():
 		return 1 / (1 + np.exp(-x))
 
 	def projecao(self, X):
-		return self.__sigmoid(X @ self.Z)
+		return self.__sigmoid(X @ self.model.coefs_[0] + self.model.intercepts_[0])
 
 	def fit(self, X, y, loo = True):
-		X = self.__concatenate(X)
-		n = X.shape[1]
-		self.Z = np.random.normal(size = (n, self.p))
+		self.model.fit(X, y)
 		H = self.projecao(X)
 
 		H = self.__concatenate(H)
@@ -44,7 +44,7 @@ class elm():
 			self.loss = press
 
 	def predict(self, X, discrimina = False):
-		H = self.projecao(self.__concatenate(X))
+		H = self.projecao(X)
 		yhat = self.__sigmoid(self.__concatenate(H) @ self.W)
 		if discrimina:
 			yhat = np.sign(yhat)
