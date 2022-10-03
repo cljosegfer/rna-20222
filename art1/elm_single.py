@@ -47,7 +47,7 @@ y_test[y_test == -1] = 0
 
 # p
 log = []
-ps = np.linspace(1, 150, 1000, dtype = np.int)
+ps = np.linspace(1, 150, 1000, dtype = int)
 loss = 1e6
 for p in tqdm(ps):
     temp = elm(p = p, l = 0)

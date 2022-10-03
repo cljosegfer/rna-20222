@@ -30,7 +30,7 @@ datasets = ('australian',
 dir_path = 'data'
 K = 10
 
-dataset = 'sonar'
+dataset = 'german'
 fold_n = 1
 
 # data
@@ -47,7 +47,7 @@ y_test[y_test == -1] = 0
 
 # p
 log = []
-ps = np.linspace(1, 100, 100, dtype = np.int)
+ps = np.linspace(1, 100, 100, dtype = int)
 loss = 1e6
 for p in tqdm(ps):
     temp = autoencoder(p = p, l = 0)
@@ -68,7 +68,7 @@ plt.title(dataset)
 
 # lambda
 log = []
-ls = np.logspace(-5, 5, 1000)
+ls = np.logspace(-5, 5, 100)
 loss = 1e6
 for l in tqdm(ls):
     temp = autoencoder(p = p, l = l)

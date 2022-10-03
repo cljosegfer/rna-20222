@@ -28,7 +28,7 @@ class autoencoder():
 		return self.__sigmoid(X @ self.model.coefs_[0] + self.model.intercepts_[0])
 
 	def fit(self, X, y, loo = True):
-		self.model.fit(X, y)
+		self.model.fit(X, X)
 		H = self.projecao(X)
 
 		H = self.__concatenate(H)
