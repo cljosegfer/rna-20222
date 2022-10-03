@@ -58,6 +58,7 @@ for p in tqdm(ps):
         loss = temp.loss
         model = temp
 p = model.p
+log = np.array(log)
 
 # plot
 plt.figure()

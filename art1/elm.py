@@ -47,8 +47,8 @@ class elm():
 		H = self.projecao(self.__concatenate(X))
 		yhat = self.__sigmoid(self.__concatenate(H) @ self.W)
 		if discrimina:
-			yhat = np.sign(yhat)
-			yhat[yhat == -1] = 0
+			yhat[yhat <= 0.5] = 0
+			yhat[yhat >= 0.5] = 1
 		return yhat
 
 	def acc(self, X, y):
