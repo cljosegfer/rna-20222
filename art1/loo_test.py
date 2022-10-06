@@ -47,10 +47,13 @@ y_test[y_test == -1] = 0
 
 # p
 log = []
-ps = np.linspace(1, 100, 1000, dtype = int)
+# ps = np.linspace(1, 100, 1000, dtype = int)
+ls = np.logspace(-5, 3, 1000)
 loss = 1e6
-for p in tqdm(ps):
-    temp = elm(p = p, l = 0)
+# l = 0
+p = 100
+for l in tqdm(ls):
+    temp = elm(p = p, l = l)
     temp.fit(X_train, y_train)
     log.append([temp.loss, 
                 temp.mse(X_test, y_test), 
@@ -69,30 +72,36 @@ log = np.array(log)
 fig, ax1 = plt.subplots()
 ax2 = ax1.twinx()
 
-ax1.plot(ps, log[:, 0], color = 'b')
+# ax1.plot(ps, log[:, 0], color = 'b')
+ax1.plot(np.log(ls), log[:, 0], color = 'b')
 ax1.set_xlabel('p')
 ax1.set_ylabel('press')
 ax1.set_title(dataset)
-ax2.plot(ps, log[:, 1], color = 'r')
+# ax2.plot(ps, log[:, 1], color = 'r')
+ax2.plot(np.log(ls), log[:, 1], color = 'r')
 ax2.set_ylabel('mse')
 # ----------------------------------
 fig, ax1 = plt.subplots()
 ax2 = ax1.twinx()
 
-ax1.plot(ps, log[:, 0], color = 'b')
+# ax1.plot(ps, log[:, 0], color = 'b')
+ax1.plot(np.log(ls), log[:, 0], color = 'b')
 ax1.set_xlabel('p')
 ax1.set_ylabel('press')
 ax1.set_title(dataset)
-ax2.plot(ps, log[:, 2], color = 'r')
+# ax2.plot(ps, log[:, 2], color = 'r')
+ax2.plot(np.log(ls), log[:, 2], color = 'r')
 ax2.set_ylabel('auc')
 # ----------------------------------
 fig, ax1 = plt.subplots()
 ax2 = ax1.twinx()
 
-ax1.plot(ps, log[:, 0], color = 'b')
+# ax1.plot(ps, log[:, 0], color = 'b')
+ax1.plot(np.log(ls), log[:, 0], color = 'b')
 ax1.set_xlabel('p')
 ax1.set_ylabel('press')
 ax1.set_title(dataset)
-ax2.plot(ps, log[:, 3], color = 'r')
+# ax2.plot(ps, log[:, 3], color = 'r')
+ax2.plot(np.log(ls), log[:, 3], color = 'r')
 ax2.set_ylabel('acc')
 # ----------------------------------
