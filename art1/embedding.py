@@ -33,18 +33,16 @@ class embedding():
 		self.train_embedding(X)
 
 		H = self.projecao(X)
-
 		H = self.concatenate(H)
-		mathbbH = np.linalg.pinv(H.T @ H + self.l * np.identity(self.p + 1)) @ H.T
-		self.W = mathbbH @ y
+
+		A = np.linalg.pinv(H.T @ H + self.l * np.identity(self.p + 1))
+		self.W = A @ H.T @ y
 
 		if loo:
-			h = np.diag(H @ mathbbH)
-			yhat = self.sigmoid(H @ self.W)
-			r = y - yhat
-			press = np.sum((r / (1 - h))**2)
-
-			self.loss = press
+			N = H.shape[0]
+			P = np.identity(N) - H @ A @ H.T
+			sigma = P @ y / np.diag(P)
+			self.loss = sigma.T @ sigma / N
 
 	def predict(self, X, discrimina = False):
 		H = self.projecao(X)
