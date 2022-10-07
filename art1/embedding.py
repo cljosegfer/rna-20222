@@ -74,7 +74,7 @@ class elm(embedding):
 		self.Z = np.random.normal(size = (n, self.p))
 
 class autoencoder(embedding):
-	def __init__(self, p = 10, l = 0.1, activation = 'logistic', solver = 'lbfgs', max_iter = 100):
+	def __init__(self, p = 10, l = 0.1, activation = 'logistic', solver = 'lbfgs', max_iter = 200):
 		super().__init__(p, l)
 		self.model = MLPRegressor(hidden_layer_sizes = self.p, activation = activation, solver = solver, max_iter = max_iter)
 
