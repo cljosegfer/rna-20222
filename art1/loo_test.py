@@ -12,22 +12,25 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from embedding import elm as net
 
-def plot(ps, log, num, dataset):
+def plot(ps, log, num, dataset, logaritmo):
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
     
-    lns1 = ax1.plot(ps[:num], log[:num, 0], color = 'b', label = 'loo')
-    # ax1.plot(np.log(ls), log[:, 0], color = 'b')
-    ax1.set_xlabel('p')
+    if logaritmo:
+        lns1 = ax1.plot(np.log(ps)[:num], log[:num, 0], color = 'b', label = 'loo')
+        ax1.set_xlabel('log lambda')
+        lns2 = ax2.plot(np.log(ps)[:num], log[:num, 1], color = 'r', label = 'mse')
+    else:
+        lns1 = ax1.plot(ps[:num], log[:num, 0], color = 'b', label = 'loo')
+        ax1.set_xlabel('p')
+        lns2 = ax2.plot(ps[:num], log[:num, 1], color = 'r', label = 'mse')
     ax1.set_ylabel('loo')
     ax1.set_title(dataset)
-    lns2 = ax2.plot(ps[:num], log[:num, 1], color = 'r', label = 'mse')
-    # ax2.plot(np.log(ls), log[:, 1], color = 'r')
     ax2.set_ylabel('mse')
     
     lns = lns1 + lns2
     labs = [l.get_label() for l in lns]
-    ax1.legend(lns, labs, loc=0)
+    ax1.legend(lns, labs, loc = 0)
     
     plt.show()    
     fig.savefig('fig/loo_test/{}.png'.format(dataset))
@@ -49,7 +52,7 @@ datasets = ('australian',
             'sonar')
 K = 10
 
-dataset = 'australian'
+dataset = 'sonar'
 for fold_n in tqdm(range(K)):
     # data
     filename = 'data/exportBase_{}_folds_10_exec_{}.mat'.format(dataset, fold_n + 1)
@@ -85,11 +88,11 @@ for fold_n in tqdm(range(K)):
     log = []
     loss = 1e6
     l = 0
-    p = 100
-    ps = np.linspace(1, 100, 1000, dtype = int)
-    # ls = np.logspace(-5, 1, 1000)
-    for p in ps:
-    # for l in tqdm(ls):
+    p = 30
+    # ps = np.linspace(1, 100, 1000, dtype = int)
+    ls = np.logspace(-5, 2, 1000)
+    # for p in ps:
+    for l in ls:
         temp = net(p = p, l = l)
         temp.fit(X_train, y_train)
         # log.append([temp.loss, 
@@ -106,7 +109,7 @@ for fold_n in tqdm(range(K)):
 # plot
 log = np.copy(loglog)
 num = 1000
-plot(ps, log, num, dataset)
+plot(ls, log, num, dataset, logaritmo = True)
 
 # # ----------------------------------
 # fig, ax1 = plt.subplots()
