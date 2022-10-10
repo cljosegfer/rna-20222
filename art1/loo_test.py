@@ -52,9 +52,9 @@ datasets = ('australian',
             'sonar')
 K = 10
 
-# dataset = 'banknote'
+# dataset = 'australian'
 for dataset in datasets:
-    for fold_n in range(K):
+    for fold_n in tqdm(range(K)):
         # data
         filename = 'data/exportBase_{}_folds_10_exec_{}.mat'.format(dataset, fold_n + 1)
         data_mat = io.loadmat(filename)
@@ -69,7 +69,6 @@ for dataset in datasets:
     
         # p
         log = []
-        loss = 1e6
         l = 0
         p = 30
         ps = np.linspace(1, 100, 1000, dtype = int)
@@ -88,7 +87,7 @@ for dataset in datasets:
             loglog = np.array(log) / K
         else:
             loglog += np.array(log) / K
-
+    
     # plot
     log = np.copy(loglog)
     num = 1000

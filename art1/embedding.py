@@ -55,8 +55,8 @@ class embedding():
 	def acc(self, X, y):
 			return accuracy_score(y, self.predict(X, discrimina = True))
 
-	def auc(self, X, y):
-		return roc_auc_score(y, self.predict(X, discrimina = True))
+	def auc(self, X, y, discrimina = True):
+		return roc_auc_score(y, self.predict(X, discrimina = discrimina))
 
 	def mse(self, X, y):
 		return mean_squared_error(y, self.predict(X))
@@ -74,7 +74,7 @@ class elm(embedding):
 		self.Z = np.random.normal(size = (n, self.p))
 
 class autoencoder(embedding):
-	def __init__(self, p = 10, l = 0.1, activation = 'logistic', solver = 'lbfgs', max_iter = 200):
+	def __init__(self, p = 10, l = 0.1, activation = 'logistic', solver = 'lbfgs', max_iter = 2000):
 		super().__init__(p, l)
 		self.model = MLPRegressor(hidden_layer_sizes = self.p, activation = activation, solver = solver, max_iter = max_iter)
 

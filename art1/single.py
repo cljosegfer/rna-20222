@@ -30,8 +30,8 @@ datasets = ('australian',
 dir_path = 'data'
 K = 10
 
-dataset = 'german'
-fold_n = 1
+dataset = 'haberman'
+fold_n = 0
 
 # data
 filename = 'data/exportBase_{}_folds_10_exec_{}.mat'.format(dataset, fold_n + 1)
