@@ -12,6 +12,7 @@ from tqdm import tqdm
 from embedding import elm as net
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn import metrics
 
 datasets = ('australian', 
             'banknote', 
@@ -100,51 +101,67 @@ ls = {'australian': 0,
 #       'sonar': -1
 #         }
 
-for dataset in datasets:
-# dataset = 'german'
+dataset = 'sonar'
+# for dataset in datasets:
 
-    p = ps[dataset]
-    l = np.exp(ls[dataset])
-    log = []
-    # print(dataset, p, l)
-    for fold_n in range(K):
-        # data
-        filename = 'data/exportBase_{}_folds_10_exec_{}.mat'.format(dataset, fold_n + 1)
-        data_mat = io.loadmat(filename)
-        
-        X_train = np.copy(data_mat['data']['train'][0][0])
-        y_train = np.copy(data_mat['data']['classTrain'][0][0].ravel())
-        y_train[y_train == -1] = 0
-        
-        X_test = np.copy(data_mat['data']['test'][0][0])
-        y_test = np.copy(data_mat['data']['classTest'][0][0].ravel())
-        y_test[y_test == -1] = 0
-        
-        # train
-        model = net(p = p, l = l)
-        model.fit(X_train, y_train)
-        
-        # eval
-        loss = model.loss
-        mse = model.mse(X_test, y_test)
-        auc_leve = model.auc(X_test, y_test, discrimina = False)
-        
-        acc = model.acc(X_test, y_test)
-        auc = model.auc(X_test, y_test)
-        
-        # log
-        log.append([loss, mse, auc_leve, acc, auc])
-    log = np.array(log)
-    output = np.mean(log, axis = 0)
+p = ps[dataset]
+l = np.exp(ls[dataset])
+log = []
+# print(dataset, p, l)
+for fold_n in range(K):
+    # data
+    filename = 'data/exportBase_{}_folds_10_exec_{}.mat'.format(dataset, fold_n + 1)
+    data_mat = io.loadmat(filename)
     
-    # plot
-    yhat = model.predict(X_test)
-    idx = np.argsort(yhat)
+    X_train = np.copy(data_mat['data']['train'][0][0])
+    y_train = np.copy(data_mat['data']['classTrain'][0][0].ravel())
+    y_train[y_train == -1] = 0
     
-    print(dataset, np.mean(yhat))
+    X_test = np.copy(data_mat['data']['test'][0][0])
+    y_test = np.copy(data_mat['data']['classTest'][0][0].ravel())
+    y_test[y_test == -1] = 0
     
-    plt.figure()
-    plt.scatter(idx, y_test, s = 0.5, label = r'$y$')
-    plt.plot(yhat[idx], label = r'$\hat{y}$')
-    plt.title(dataset)
-    plt.legend()
+    # train
+    model = net(p = p, l = l)
+    model.fit(X_train, y_train)
+    
+    # eval
+    loss = model.loss
+    mse = model.mse(X_test, y_test)
+    auc_leve = model.auc(X_test, y_test, discrimina = False)
+    
+    acc = model.acc(X_test, y_test)
+    auc = model.auc(X_test, y_test)
+    
+    # log
+    log.append([loss, mse, auc_leve, acc, auc])
+    
+    # # plot
+    # yhat = model.predict(X_test)
+    # # roc_display = metrics.RocCurveDisplay.from_predictions(y_test, yhat)
+    # fpr, tpr, thresholds = metrics.roc_curve(y_test, yhat)
+
+    # roc_display = metrics.RocCurveDisplay(fpr = fpr, tpr = tpr).plot()
+    # plt.title(dataset)
+log = np.array(log)
+output = np.mean(log, axis = 0)
+
+# plot
+yhat = model.predict(X_test)
+idx = np.argsort(yhat)
+auc_leve = model.auc(X_test, y_test, discrimina = False)
+
+print(dataset, np.mean(yhat))
+
+plt.figure()
+plt.scatter(idx, y_test, label = r'$y$')
+plt.plot(yhat[idx], label = r'$\hat{y}$', c = 'orange')
+plt.title(dataset)
+plt.legend()
+
+# auc
+fpr, tpr, thresholds = metrics.roc_curve(y_test, yhat)
+
+plt.figure()
+roc_display = metrics.RocCurveDisplay(fpr = fpr, tpr = tpr).plot()
+plt.title(dataset)
