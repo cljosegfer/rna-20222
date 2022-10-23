@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sun Oct  9 19:16:41 2022
+Created on Sun Oct 23 16:07:22 2022
 
 @author: jose
 """
@@ -9,9 +9,9 @@ Created on Sun Oct  9 19:16:41 2022
 from scipy import io
 import numpy as np
 from tqdm import tqdm
-from embedding import elm as net
+from embedding import autoencoder as net
 import pandas as pd
-import matplotlib.pyplot as plt
+from sklearn.utils import resample
 
 datasets = ('australian', 
             'banknote', 
@@ -65,44 +65,44 @@ ls = {'australian': 0,
       'sonar': 2
       }
 
-# # autoencoder
-# ps = {'australian': 20,
-#         'banknote': 100,
-#         'breastcancer': 40,
-#         'breastHess': 5,
-#         'bupa': 5,
-#         'climate': 20,
-#         'diabetes': 10,
-#         'fertility': 5,
-#         'german': 20,
-#         'golub': 5,
-#         'haberman': 5,
-#         'heart': 10,
-#         'ILPD': 10,
-#         'parkinsons': 10,
-#         'sonar': 10
-#         }
+# autoencoder
+ps = {'australian': 20,
+        'banknote': 100,
+        'breastcancer': 40,
+        'breastHess': 5,
+        'bupa': 5,
+        'climate': 20,
+        'diabetes': 10,
+        'fertility': 5,
+        'german': 20,
+        'golub': 5,
+        'haberman': 5,
+        'heart': 10,
+        'ILPD': 10,
+        'parkinsons': 10,
+        'sonar': 10
+        }
 
-# ls = {'australian': -12, 
-#       'banknote': -12, 
-#       'breastcancer': -8, 
-#       'breastHess': -1, 
-#       'bupa': -1, 
-#       'climate': -1, 
-#       'diabetes': -1, 
-#       'fertility': 2, 
-#       'german': -1, 
-#       'golub': -2, 
-#       'haberman': -2, 
-#       'heart': -1, 
-#       'ILPD': -1, 
-#       'parkinsons': -1, 
-#       'sonar': -1
-#         }
+ls = {'australian': -12, 
+      'banknote': -12, 
+      'breastcancer': -8, 
+      'breastHess': -1, 
+      'bupa': -1, 
+      'climate': -1, 
+      'diabetes': -1, 
+      'fertility': 2, 
+      'german': -1, 
+      'golub': -2, 
+      'haberman': -2, 
+      'heart': -1, 
+      'ILPD': -1, 
+      'parkinsons': -1, 
+      'sonar': -1
+        }
 
-for dataset in datasets:
-# dataset = 'german'
-
+loglog = []
+for dataset in tqdm(datasets):
+    # dataset = 'fertility'
     p = ps[dataset]
     l = np.exp(ls[dataset])
     log = []
@@ -120,6 +120,20 @@ for dataset in datasets:
         y_test = np.copy(data_mat['data']['classTest'][0][0].ravel())
         y_test[y_test == -1] = 0
         
+        # upsample
+        eta = np.sum(y_train) / len(y_train)
+        if eta > 0.5:
+            minoria = y_train == 0
+        else:
+            minoria = y_train == 1
+        n_samples = len(minoria) - 2 * np.sum(minoria)
+        upsample, classUpsample = resample(X_train[minoria], y_train[minoria],
+                                           replace = True, n_samples = n_samples)
+        X_train = np.concatenate((X_train, upsample), axis = 0)
+        y_train = np.concatenate((y_train, classUpsample), axis = 0)
+        eta = np.sum(y_train) / len(y_train)
+        assert eta == 0.5
+        
         # train
         model = net(p = p, l = l)
         model.fit(X_train, y_train)
@@ -135,16 +149,9 @@ for dataset in datasets:
         # log
         log.append([loss, mse, auc_leve, acc, auc])
     log = np.array(log)
-    output = np.mean(log, axis = 0)
-    
-    # plot
-    yhat = model.predict(X_test)
-    idx = np.argsort(yhat)
-    
-    print(dataset, np.mean(yhat))
-    
-    plt.figure()
-    plt.scatter(idx, y_test, s = 0.5, label = r'$y$')
-    plt.plot(yhat[idx], label = r'$\hat{y}$')
-    plt.title(dataset)
-    plt.legend()
+    loglog.append(np.mean(log, axis = 0))
+
+# export
+df = pd.DataFrame(loglog, columns = ['loo', 'mse', 'auc_leve', 
+                                     'acc', 'auc'])
+df.to_csv('output/{}_upsample.csv'.format(type(model)), index = None)
