@@ -64,23 +64,6 @@ datasets = ('australian',
             'sonar')
 K = 10
 
-ps = {'australian': 20, 
-        'banknote': 50, 
-        'breastcancer': 20, 
-        'breastHess': 10, 
-        'bupa': 15, 
-        'climate': 25, 
-        'diabetes': 15, 
-        'fertility': 5, 
-        'german': 40, 
-        'golub': 5, 
-        'haberman': 5, 
-        'heart': 20, 
-        'ILPD': 10, 
-        'parkinsons': 30, 
-      'sonar': 20
-      }
-
 dataset = 'sonar'
 for dataset in datasets:
     fold_n = 0
@@ -98,15 +81,13 @@ for dataset in datasets:
     y_test[y_test == -1] = 0
     
     log = []
-    p = ps[dataset] + 100
-    ls = np.logspace(-5, 2, 100)
     print(dataset)
-    # l = 0.1
-    for l in tqdm(ls):
+    ps = np.linspace(1, 100, 100, dtype = int)
+    for p in tqdm(ps):
         # train
         model = MLPClassifier(activation = 'logistic', solver = 'lbfgs', 
-                             alpha = l, hidden_layer_sizes = p, 
-                             max_iter = 5000)
+                              hidden_layer_sizes = p, 
+                              max_iter = 5000)
         model.fit(X_train, y_train)
         
         # projecao
@@ -125,4 +106,4 @@ for dataset in datasets:
         acc_test = accuracy_score(yhat, y_test)
         
         log.append([metrica_train, metrica_test, acc_train, acc_test])
-    np.save('output/{}.npy'.format(dataset), log)
+    np.save('output/p/{}.npy'.format(dataset), log)
