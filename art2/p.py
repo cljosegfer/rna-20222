@@ -125,4 +125,4 @@ for dataset in datasets:
         acc_test = accuracy_score(yhat, y_test)
         
         log.append([metrica_train, metrica_test, acc_train, acc_test])
-    np.save('output/lambda/{}.npy'.format(dataset), log)
+    np.save('output/{}.npy'.format(dataset), log)
