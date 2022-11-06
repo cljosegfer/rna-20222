@@ -47,15 +47,15 @@ def q_index(X, y, gg):
     scores = np.array(scores)
     return scores
 
-datasets = ('fertility', 
-            'banknote', 
+datasets = ('australian', 
+            # 'banknote', 
             'breastcancer', 
             'breastHess', 
-            'golub', 
+            'bupa', 
             'climate', 
             'diabetes', 
             'fertility', 
-            'german', 
+            # 'german', 
             'golub', 
             'haberman', 
             'heart', 
