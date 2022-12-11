@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 class custom(Dataset):
-    def __init__(self, dataset, fold_n, train = True, downsample = True):
+    def __init__(self, dataset, fold_n, train = True, downsample = False):
         filename = 'data/exportBase_{}_folds_10_exec_{}.mat'.format(dataset, fold_n + 1)
         data_mat = io.loadmat(filename)
         

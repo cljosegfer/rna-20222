@@ -19,9 +19,6 @@ from tqdm import tqdm
 
 from sklearn.metrics import roc_auc_score
 
-dataset = 'breastcancer'
-fold_n = 0
-
 log = []
 for dataset in datasets:
     auc = 0
