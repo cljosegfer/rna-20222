@@ -7,9 +7,10 @@ Created on Sun Dec 11 18:58:10 2022
 """
 
 import torch
-import torch.nn as nn
+# import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+import torch.autograd as autograd
 
 from embedding import autoencoder
 from dataset import custom
@@ -24,10 +25,10 @@ from sklearn.metrics import roc_auc_score
 #     crosstalk = 0
 #     for h in H:
 #         for another_h in H:
-#             if h == another_h:
+#             if (h == another_h).all():
 #                 continue
 #             crosstalk += torch.dot(h, another_h)
-#     crosstalk /= torch.pow(batch.size()[0], 2)
+#     crosstalk /= batch.size()[0] ** 2
     
 #     return mse + crosstalk
 
@@ -36,7 +37,7 @@ def modificado(xhat, x, H):
     crosstalk = 0
     for h in H:
         crosstalk += torch.dot(h, h)
-    crosstalk /= torch.pow(batch.size()[0], 2)
+    crosstalk /= batch.size()[0]
     
     return mse + crosstalk
 
@@ -56,10 +57,13 @@ for dataset in datasets:
         optimizer = optim.Adam(model.parameters(), weight_decay = 1e-4)
         # criterion = nn.MSELoss()
         
+        if torch.cuda.is_available():
+            model = model.cuda()
+        
         # train
         for epoch in range(epochs):
             for batch, y in train_loader:
-                batch = batch.float()
+                batch = autograd.Variable(batch.float()).cuda()
                 
                 optimizer.zero_grad()
                 xhat = model.forward(batch)
