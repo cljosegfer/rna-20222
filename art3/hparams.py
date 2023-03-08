@@ -23,5 +23,5 @@ datasets = ('australian',
             'sonar')
 K = 10
 
-batch_size = 32
-epochs = 1000
+batch_size = 64
+epochs = 500

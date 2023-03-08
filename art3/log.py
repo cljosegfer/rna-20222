@@ -18,7 +18,7 @@ for dataset in datasets:
     auc = 0
     for fold_n in range(K):
         # read
-        train = custom(dataset, fold_n, downsample = False)
+        train = custom(dataset, fold_n)
         val = custom(dataset, fold_n, train = False)
         
         # model

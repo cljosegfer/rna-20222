@@ -23,7 +23,7 @@ for dataset in datasets:
     auc = 0
     for fold_n in tqdm(range(K)):
         # read
-        train = custom(dataset, fold_n)
+        train = custom(dataset, fold_n, downsample = True)
         val = custom(dataset, fold_n, train = False)
         train_loader = torch.utils.data.DataLoader(train, 
                                                    batch_size = batch_size, 
